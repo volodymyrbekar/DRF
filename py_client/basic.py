@@ -10,3 +10,5 @@ get_response = requests.get(endpoint, json={"query": "Hello world"})  # API -> M
 print(get_response.json())
 print(get_response.status_code)
 
+
+
