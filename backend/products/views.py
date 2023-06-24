@@ -13,8 +13,7 @@ class ProductListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAP
     serializer_class = ProductSerializer
 
     def perform_create(self, serializer):
-        # serializer.save(user=self.request.user)
-        print(serializer.validated_data)
+        # serializer.save(user=self.request.user
         title = serializer.validated_data.get('title')
         content = serializer.validated_data.get('content') or None
         if content is None:
