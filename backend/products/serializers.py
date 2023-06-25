@@ -1,11 +1,23 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from api.serializers import UserPublicSerializer
 from .models import Product
 from .validators import validate_title_no_hello, unique_product_title
 
 
+class ProductInlineSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='product-detail',
+        lookup_field='pk',
+        read_only=True,
+    )
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    owner = UserPublicSerializer(source='user', read_only=True)
+    related_products = ProductInlineSerializer(source='user.product_set.all', read_only=True, many=True)
+    my_user_data = serializers.SerializerMethodField(read_only=True)
     my_discount = serializers.SerializerMethodField(read_only=True)
     edit_url = serializers.SerializerMethodField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
@@ -18,7 +30,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            # 'user',
+            'owner',
             'url',
             'edit_url',
             'pk',
@@ -28,7 +40,14 @@ class ProductSerializer(serializers.ModelSerializer):
             'price',
             'sale_price',
             'my_discount',
+            'my_user_data',
+            'related_products',
         ]
+
+    def get_my_user_data(self, obj):
+        return {
+            "username": obj.user.username
+        }
 
     # def validate_title(self, value):
     #     request = self.context.get('request')
